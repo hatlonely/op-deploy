@@ -1,0 +1,81 @@
+namespace: prod
+name: go-rpc-account
+replicaCount: 1
+
+image:
+  repository: registry.cn-beijing.aliyuncs.com/hatlonely/go-rpc-account
+  tag: 1.0.0
+  pullPolicy: Always
+
+imagePullSecrets:
+  name: hatlonely-pull-secrets
+
+ingress:
+  host: k8s.account.hatlonely.com
+  secretName: k8s-secret
+
+config: |
+  {
+    "http": {
+      "port": 80
+    },
+    "grpc": {
+      "port": 6080
+    },
+    "account": {
+      "accountExpiration": "5m",
+      "captchaExpiration": "30m"
+    },
+    "redis": {
+      "addr": "127.0.0.1:6379",
+      "password": "",
+      "dialTimeout": "200ms",
+      "readTimeout": "200ms",
+      "writeTimeout": "200ms",
+      "maxRetries": 3,
+      "poolSize": 20,
+      "db": 0
+    },
+    "mysql": {
+      "username": "root",
+      "password": "",
+      "database": "account",
+      "host": "mysql",
+      "port": 3306,
+      "connMaxLifeTime": "60s",
+      "maxIdleConns": 10,
+      "maxOpenConns": 20
+    },
+    "email": {
+      "from": "hatlonely@foxmail.com",
+      "password": "",
+      "server": "smtp.qq.com",
+      "port": 25
+    },
+    "logger": {
+      "grpc": {
+        "level": "Info",
+        "writers": [{
+          "type": "RotateFile",
+          "filename": "log/account.grpc",
+          "maxAge": "24h"
+        }]
+      },
+      "warn": {
+        "level": "Warn",
+        "writers": [{
+          "type": "RotateFile",
+          "filename": "log/account.err",
+          "maxAge": "24h"
+        }]
+      },
+      "info": {
+        "level": "Info",
+        "writers": [{
+          "type": "RotateFile",
+          "filename": "log/account.log",
+          "maxAge": "24h"
+        }]
+      }
+    }
+  }

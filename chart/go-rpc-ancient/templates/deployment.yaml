@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{.Values.namespace}}
+  name: {{.Values.name}}
+  labels:
+    app: {{.Values.name}}
+spec:
+  replicas: {{.Values.replicaCount}}
+  selector:
+    matchLabels:
+      app: {{.Values.name}}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.name}}
+    spec:
+      imagePullSecrets:
+        - name: {{.Values.imagePullSecrets.name}}
+      containers:
+        - name: account
+          image: {{.Values.image.repository}}:{{.Values.image.tag}}
+          imagePullPolicy: {{.Values.image.pullPolicy}}
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: {{.Values.name}}-config
+              mountPath: /var/docker/{{.Values.name}}/config
+      volumes:
+        - name: {{.Values.name}}-config
+          projected:
+            sources:
+            - configMap:
+                name: {{.Values.name}}
+                items:
+                  - key: {{.Values.name}}.json
+                    path: {{.Values.name}}.json

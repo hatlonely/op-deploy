@@ -47,7 +47,13 @@ function CreatePULL_SECRETSIfNotExists() {
 function Render() {
     environment=$1
     variable=$2
-    sh tpl.sh render "${environment}" "${variable}"
+    sh tpl.sh render "${environment}" "${variable}" || return 1
+    # shellcheck source=tmp/$1/environment.sh
+    source "tmp/${environment}/environment.sh"
+    rm -rf "tmp/${environment}/${NAME}" && cp -r chart/myapp "tmp/${environment}/${NAME}"
+    eval "cat > \"tmp/${environment}/${NAME}/Chart.yaml\" <<EOF
+$(< "chart/myapp/Chart.yaml")
+EOF"
 }
 
 function Test() {

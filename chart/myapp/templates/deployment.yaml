@@ -17,8 +17,37 @@ spec:
     spec:
       imagePullSecrets:
         - name: {{.Values.imagePullSecrets.name}}
+      affinity:
+        {{- if .Values.nodeAffinity.enable }}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: {{.Values.nodeAffinity.key}}
+                    operator: In
+                    values:
+                      - {{.Values.nodeAffinity.val}}
+        {{- end}}
+        {{- if .Values.podAntiAffinity.enable }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{.Values.name}}
+              topologyKey: kubernetes.io/hostname
+        {{- end}}
+      {{- if .Values.tolerations.enable}}
+      tolerations:
+        - key: ${{.Values.tolerations.key}}
+          operator: "Equal"
+          value: ${{.Values.tolerations.val}}
+          effect: "NoExecute"
+      {{- end}}
       containers:
-        - name: account
+        - name: {{.Values.name}}
           image: {{.Values.image.repository}}:{{.Values.image.tag}}
           imagePullPolicy: {{.Values.image.pullPolicy}}
           ports:

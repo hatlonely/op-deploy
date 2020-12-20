@@ -22,24 +22,25 @@ function Build() {
 
 function SQLTpl() {
     environment=$1
-    kubectl run -n prod -it --rm sql --image=mysql:5.7.30 --restart=Never -- \
+    kubectl run -n "${NAMESPACE}" -it --rm sql --image=mysql:5.7.30 --restart=Never -- \
       mysql -uroot -h"${MYSQL_SERVER}" -p"${MYSQL_ROOT_PASSWORD}" -e "$(cat "tmp/${environment}/create_table.sql")"
 }
 
-function CreateNAMESPACEIfNotExists() {
+function CreateNamespaceIfNotExists() {
     kubectl get namespaces "${NAMESPACE}" 2>/dev/null 1>&2 && return 0
     kubectl create namespace "${NAMESPACE}" &&
     Info "create namespace ${NAMESPACE} success" ||
     Warn "create namespace ${NAMESPACE} failed"
 }
 
-function CreatePULL_SECRETSIfNotExists() {
+function CreatePullSecretsIfNotExists() {
+    CreateNamespaceIfNotExists || return 1
     kubectl get secret "${PULL_SECRETS}" -n "${NAMESPACE}" 2>/dev/null 1>&2 && return 0
     kubectl create secret docker-registry "${PULL_SECRETS}" \
         --docker-server="${REGISTRY_SERVER}" \
         --docker-username="${REGISTRY_USERNAME}" \
         --docker-password="${REGISTRY_PASSWORD}" \
-        --namespace="prod" &&
+        --namespace="${NAMESPACE}" &&
     Info "[kubectl create secret docker-registry ${PULL_SECRETS}] success" ||
     Warn "[kubectl create secret docker-registry ${PULL_SECRETS}] failed"
 }
@@ -61,6 +62,26 @@ function Test() {
       --image="${REGISTRY_SERVER}/${IMAGE_REPOSITORY}:${IMAGE_TAG}" \
       --restart=Never \
       -- /bin/bash
+}
+
+function AddLabel() {
+    node=$1
+    kubectl label node "${node}" "${NODE_AFFINITY_LABEL_KEY}=${NODE_AFFINITY_LABEL_VAL}" --overwrite=true
+}
+
+function DelLabel() {
+    node=$1
+    kubectl label node "${node}" "${NODE_AFFINITY_LABEL_KEY}"-
+}
+
+function AddTaint() {
+    node=$1
+    kubectl taint node "${node}" "${TOLERATIONS_TAINT_KEY}=${TOLERATIONS_TAINT_VAL}:NoExecute" --overwrite=true
+}
+
+function DelTaint() {
+    node=$1
+    kubectl taint node "${node}" "${TOLERATIONS_TAINT_KEY}:NoExecute-"
 }
 
 function Install() {
@@ -126,10 +147,12 @@ function main() {
     case "${action}" in
         "build") Build;;
         "sql") SQLTpl "${environment}";;
-        "secret") CreatePULL_SECRETSIfNotExists;;
+        "secret") CreatePullSecretsIfNotExists;;
         "install") Install "${environment}";;
         "upgrade") Upgrade "${environment}";;
         "diff") Diff "${environment}";;
+        "addLabel") AddLabel "$3";;
+        "delLabel") DelLabel "$3";;
         "delete") Delete;;
         "test") Test;;
         "restart") Restart;;

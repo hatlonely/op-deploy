@@ -1,3 +1,4 @@
+{{- if .Values.ingress.enable }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -18,3 +19,4 @@ spec:
     - hosts:
         - {{.Values.ingress.host}}
       secretName: {{.Values.ingress.secretName}}
+{{- end }}

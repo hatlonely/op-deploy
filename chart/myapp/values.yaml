@@ -10,7 +10,21 @@ image:
 imagePullSecrets:
   name: hatlonely-pull-secrets
 
+nodeAffinity:
+  enable: false
+  key: test.io/app-name
+  val: myapp
+
+podAntiAffinity:
+  enable: false
+
+tolerations:
+  enable: false
+  key: dedicated
+  val: myapp
+
 ingress:
+  enable: false
   host: k8s.myapp.hatlonely.com
   secretName: k8s-secret
 

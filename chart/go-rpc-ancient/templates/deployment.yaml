@@ -33,5 +33,7 @@ spec:
             - configMap:
                 name: {{.Values.name}}
                 items:
-                  - key: {{.Values.name}}.json
-                    path: {{.Values.name}}.json
+                  - key: base.json
+                    path: base.json
+                  - key: app.json
+                    path: app.json

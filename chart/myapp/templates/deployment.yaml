@@ -25,7 +25,7 @@ spec:
             - containerPort: 80
           volumeMounts:
             - name: {{.Values.name}}-config
-              mountPath: /var/docker/{{.Values.name}}/config
+              mountPath: /work/{{.Values.name}}/config
       volumes:
         - name: {{.Values.name}}-config
           projected:

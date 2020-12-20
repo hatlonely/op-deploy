@@ -62,17 +62,17 @@ function Test() {
 
 function Install() {
     environment=$1
-    helm install "${NAME}" -n "${NAMESPACE}" "./chart/${NAME}" -f "tmp/${environment}/chart.yaml"
+    helm install "${NAME}" -n "${NAMESPACE}" "tmp/${environment}/${NAME}" -f "tmp/${environment}/chart.yaml"
 }
 
 function Upgrade() {
     environment=$1
-    helm upgrade "${NAME}" -n "${NAMESPACE}" "./chart/${NAME}" -f "tmp/${environment}/chart.yaml"
+    helm upgrade "${NAME}" -n "${NAMESPACE}" "tmp/${environment}/${NAME}" -f "tmp/${environment}/chart.yaml"
 }
 
 function Diff() {
     environment=$1
-    helm diff upgrade "${NAME}" -n "${NAMESPACE}" "./chart/${NAME}" -f "tmp/${environment}/chart.yaml"
+    helm diff upgrade "${NAME}" -n "${NAMESPACE}" "tmp/${environment}/${NAME}" -f "tmp/${environment}/chart.yaml"
 }
 
 function Delete() {

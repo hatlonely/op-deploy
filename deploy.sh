@@ -14,7 +14,7 @@ function Warn() {
 }
 
 function Build() {
-    cd .. && make image && cd -
+    cd .. && make image && cd - || return
     docker login --username="${REGISTRY_USERNAME}" --password="${REGISTRY_PASSWORD}" "${REGISTRY_SERVER}"
     docker tag "${IMAGE_REPOSITORY}:${IMAGE_TAG}" "${REGISTRY_SERVER}/${IMAGE_REPOSITORY}:${IMAGE_TAG}"
     docker push "${REGISTRY_SERVER}/${IMAGE_REPOSITORY}:${IMAGE_TAG}"
@@ -57,7 +57,10 @@ EOF"
 }
 
 function Test() {
-    kubectl run -n "${NAMESPACE}" -it --rm "${NAME}" --image="${REGISTRY_SERVER}/${IMAGE_REPOSITORY}:${IMAGE_TAG}" --restart=Never -- /bin/bash
+    kubectl run -n "${NAMESPACE}" -it --rm "${NAME}" \
+      --image="${REGISTRY_SERVER}/${IMAGE_REPOSITORY}:${IMAGE_TAG}" \
+      --restart=Never \
+      -- /bin/bash
 }
 
 function Install() {

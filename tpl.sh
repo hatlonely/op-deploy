@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+tpl=../tpl
+
 function Trac() {
     echo "[TRAC] [$(date +"%Y-%m-%d %H:%M:%S")] $1"
 }
@@ -14,25 +16,25 @@ function Warn() {
 }
 
 function List() {
-    find gotpl -type d -depth 1 | awk '{print(substr($0, 7, length($0)))}'
+    find ${tpl}/gotpl -type d -depth 1 | awk '{print(substr($0, 7, length($0)))}'
 }
 
 function RenderGo() {
     environment=$1
     cfg=$2
     mkdir -p "tmp/${environment}"
-    gomplate -f "gotpl/${environment}/environment.sh.tpl" -c .="${cfg}" > "tmp/${environment}/environment.sh" &&
-    Info "[gomplate -f \"gotpl/${environment}/environment.sh.tpl\" -c .=\"${cfg}\" > \"tmp/${environment}/environment.sh\"] success" ||
-    Warn "[gomplate -f \"gotpl/${environment}/environment.sh.tpl\" -c .=\"${cfg}\" > \"tmp/${environment}/environment.sh\"] failed"
+    gomplate -f "${tpl}/gotpl/${environment}/environment.sh.tpl" -c .="${cfg}" > "tmp/${environment}/environment.sh" &&
+    Info "[gomplate -f \"${tpl}/gotpl/${environment}/environment.sh.tpl\" -c .=\"${cfg}\" > \"tmp/${environment}/environment.sh\"] success" ||
+    Warn "[gomplate -f \"${tpl}/gotpl/${environment}/environment.sh.tpl\" -c .=\"${cfg}\" > \"tmp/${environment}/environment.sh\"] failed"
 }
 
 function RenderSh() {
     environment=$1
     # shellcheck source=tmp/environment.sh
     source "tmp/${environment}/environment.sh"
-    find shtpl -type f -depth 1 -name "*.tpl" | while read -r tpl; do
+    find ${tpl}/shtpl -type f -depth 1 -name "*.tpl" | while read -r tpl; do
         out=${tpl%.*}
-        out=${out#*/}
+        out=${out##*/}
         out=tmp/${environment}/${out}
         eval "cat > \"${out}\" <<EOF
 $(< "${tpl}")

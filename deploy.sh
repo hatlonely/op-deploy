@@ -83,7 +83,7 @@ function Help() {
     echo "  sh deploy.sh prod build"
     echo "  sh deploy.sh prod sql"
     echo "  sh deploy.sh prod secret"
-    echo "  sh deploy.sh prod render"
+    echo "  sh deploy.sh prod render ~/.gomplate/prod.json"
     echo "  sh deploy.sh prod install"
     echo "  sh deploy.sh prod upgrade"
     echo "  sh deploy.sh prod delete"
@@ -101,6 +101,11 @@ function main() {
     environment=$1
     action=$2
 
+    if [ "${action}" == "render" ]; then
+        Render "${environment}" "$3"
+        return 0
+    fi
+
     # shellcheck source=tmp/$1/environment.sh
     source "tmp/$1/environment.sh"
 
@@ -113,7 +118,6 @@ function main() {
         "build") Build;;
         "sql") SQLTpl "${environment}";;
         "secret") CreatePULL_SECRETSIfNotExists;;
-        "render") Render "${environment}" "$3";;
         "install") Install "${environment}";;
         "upgrade") Upgrade "${environment}";;
         "diff") Diff "${environment}";;

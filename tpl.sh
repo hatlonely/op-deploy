@@ -16,7 +16,7 @@ function Warn() {
 }
 
 function List() {
-    find ${tpl}/gotpl -type d -depth 1 | awk '{print(substr($0, 7, length($0)))}'
+    find ${tpl}/gotpl -type d -depth 1 | awk '{print(substr($0, 14, length($0)))}'
 }
 
 function RenderGo() {

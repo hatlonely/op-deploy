@@ -119,7 +119,10 @@ function Help() {
     echo "  sh deploy.sh prod delete"
     echo "  sh deploy.sh prod diff"
     echo "  sh deploy.sh prod test"
-    echo "  sh deploy.sh prod restart"
+    echo "  sh deploy.sh prod addLabel node1"
+    echo "  sh deploy.sh prod delLabel node1"
+    echo "  sh deploy.sh prod addTaint node1"
+    echo "  sh deploy.sh prod delTaint node1"
 }
 
 function main() {
@@ -153,6 +156,8 @@ function main() {
         "diff") Diff "${environment}";;
         "addLabel") AddLabel "$3";;
         "delLabel") DelLabel "$3";;
+        "addTaint") AddTaint "$3";;
+        "delTaint") DelTaint "$3";;
         "delete") Delete;;
         "test") Test;;
         "restart") Restart;;

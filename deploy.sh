@@ -49,19 +49,19 @@ function CreateNamespaceIfNotExists() {
 
 function CreatePullSecretsIfNotExists() {
     CheckNotEmpty "NAMESPACE" || return 1
-    CheckNotEmpty "PULL_SECRETS" || return 1
+    CheckNotEmpty "IMAGE_PULL_SECRET" || return 1
     CheckNotEmpty "REGISTRY_SERVER" || return 1
     CheckNotEmpty "REGISTRY_USERNAME" || return 1
     CheckNotEmpty "REGISTRY_PASSWORD" || return 1
     CreateNamespaceIfNotExists || return 1
-    kubectl get secret "${PULL_SECRETS}" -n "${NAMESPACE}" 2>/dev/null 1>&2 && return 0
-    kubectl create secret docker-registry "${PULL_SECRETS}" \
+    kubectl get secret "${IMAGE_PULL_SECRET}" -n "${NAMESPACE}" 2>/dev/null 1>&2 && return 0
+    kubectl create secret docker-registry "${IMAGE_PULL_SECRET}" \
         --docker-server="${REGISTRY_SERVER}" \
         --docker-username="${REGISTRY_USERNAME}" \
         --docker-password="${REGISTRY_PASSWORD}" \
         --namespace="${NAMESPACE}" &&
-    Info "[kubectl create secret docker-registry ${PULL_SECRETS}] success" ||
-    Warn "[kubectl create secret docker-registry ${PULL_SECRETS}] failed"
+    Info "[kubectl create secret docker-registry ${IMAGE_PULL_SECRET}] success" ||
+    Warn "[kubectl create secret docker-registry ${IMAGE_PULL_SECRET}] failed"
 }
 
 function Render() {

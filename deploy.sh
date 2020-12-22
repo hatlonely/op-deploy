@@ -16,8 +16,8 @@ function Warn() {
 function Build() {
     cd .. && make image && cd - || return
     docker login --username="${REGISTRY_USERNAME}" --password="${REGISTRY_PASSWORD}" "${REGISTRY_SERVER}"
-    docker tag "${IMAGE_REPOSITORY}:${IMAGE_TAG}" "${REGISTRY_SERVER}/${IMAGE_REPOSITORY}:${IMAGE_TAG}"
-    docker push "${REGISTRY_SERVER}/${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+    docker tag "${REGISTRY_NAMESPACE}/${IMAGE_REPOSITORY}:${IMAGE_TAG}" "${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+    docker push "${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/${IMAGE_REPOSITORY}:${IMAGE_TAG}"
 }
 
 function SQLTpl() {
@@ -55,11 +55,12 @@ function Render() {
     eval "cat > \"tmp/${environment}/${NAME}/Chart.yaml\" <<EOF
 $(< "chart/myapp/Chart.yaml")
 EOF"
+    sh tpl.sh render "${environment}" "${variable}" || return 1
 }
 
 function Test() {
     kubectl run -n "${NAMESPACE}" -it --rm "${NAME}" \
-      --image="${REGISTRY_SERVER}/${IMAGE_REPOSITORY}:${IMAGE_TAG}" \
+      --image="${REGISTRY_SERVER}/${REGISTRY_NAMESPACE}/${IMAGE_REPOSITORY}:${IMAGE_TAG}" \
       --restart=Never \
       -- /bin/bash
 }
@@ -142,7 +143,7 @@ function main() {
     # shellcheck source=tmp/$1/environment.sh
     source "tmp/$1/environment.sh"
 
-    if [ "${K8S_CONTEXT}" != "$(kubectl config current-context)" ]; then
+    if [ "${action}" != "build" ] && [ "${K8S_CONTEXT}" != "$(kubectl config current-context)" ]; then
         Warn "context [${K8S_CONTEXT}] not match [$(kubectl config current-context)]"
         return 1
     fi

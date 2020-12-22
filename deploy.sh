@@ -55,7 +55,6 @@ function Render() {
     eval "cat > \"tmp/${environment}/${NAME}/Chart.yaml\" <<EOF
 $(< "chart/myapp/Chart.yaml")
 EOF"
-    sh tpl.sh render "${environment}" "${variable}" || return 1
 }
 
 function Test() {
